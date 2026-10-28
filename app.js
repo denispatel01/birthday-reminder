@@ -7,7 +7,7 @@
     deleted: "br_deleted_v1",    // hidden base ids
     settings: "br_settings_v1",
   };
-  const VERSION = "1.1.0";
+  const VERSION = "1.2.0";
   const PASSCODE = "1708";
   const UNLOCK_KEY = "br_unlocked_v1";
   const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -455,6 +455,33 @@
     try { new Notification(`🎂 ${list.length} birthday${list.length>1?"s":""} today`, { body: names, icon: "icons/icon-192.png" }); } catch {}
   }
 
+  /* ---------- welcome greeting ---------- */
+  function showWelcome() {
+    const w = $("#welcome"); if (!w) return;
+    const h = today.getHours ? new Date().getHours() : 12;
+    const partOfDay = h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
+    const leader = settings.leader || "Rakesh Kaka";
+    $("#welcomeHi").innerHTML = `Jai Swaminarayan,<br>${esc(leader)} 🙏`;
+    $("#welcomeTime").textContent = `${partOfDay} • ${DOW[today.getDay()]}, ${today.getDate()} ${MONTHS[today.getMonth()]}`;
+
+    const ppl = allPeople();
+    const todayCount = ppl.filter(isToday).length;
+    const weekCount = ppl.filter(p => { const d = daysUntil(p); return d >= 0 && d <= 7; }).length;
+    let countHtml;
+    if (todayCount > 0) {
+      countHtml = `<div class="count">🎂 <b>${todayCount}</b> ${todayCount === 1 ? "bhakt has" : "bhakto have"} a birthday <b>today</b>.<br>Let's make ${todayCount === 1 ? "them" : "them all"} feel special! 🎉</div>`;
+    } else if (weekCount > 0) {
+      countHtml = `<div class="count">No birthdays today 🙂<br><b>${weekCount}</b> coming up in the next 7 days.</div>`;
+    } else {
+      countHtml = `<div class="count">No birthdays in the coming week.<br>Have a blessed day! 🙏</div>`;
+    }
+    $("#welcomeMsg").innerHTML =
+      `This app is made with love, just for you — to help you wish every bhakt a very happy birthday on their special day. 🎂${countHtml}`;
+
+    w.hidden = false;
+    $("#welcomeBtn").onclick = () => { w.hidden = true; };
+  }
+
   /* ---------- misc ---------- */
   function debounce(fn, ms) { let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), ms); }; }
   function setActiveTab() {
@@ -514,6 +541,7 @@
     window.addEventListener("appinstalled", () => { $("#installBtn").hidden = true; toast("Installed ✔"); });
 
     render();
+    showWelcome();
     setTimeout(maybeNotify, 800);
 
     if ("serviceWorker" in navigator) {

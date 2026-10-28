@@ -13,7 +13,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Birthdays">
-<link rel="stylesheet" href="styles.css?v=110">
+<link rel="stylesheet" href="styles.css?v=121">
 </head>
 <body>
 <!-- Passcode lock (shown until unlocked once on this device) -->
@@ -26,6 +26,17 @@
     <p id="lockError" class="lock-error" hidden>Wrong passcode. Try again.</p>
     <button class="btn primary" id="lockBtn" style="width:100%">Unlock</button>
     <p class="muted small" style="margin-top:14px">You'll only be asked once on this device.</p>
+  </div>
+</div>
+
+<!-- Warm welcome greeting (shown on each open, after unlock) -->
+<div id="welcome" class="welcome" hidden>
+  <div class="welcome-inner">
+    <div class="welcome-emoji">🙏</div>
+    <h2 id="welcomeHi">Jai Swaminarayan</h2>
+    <p class="welcome-sub" id="welcomeTime"></p>
+    <div class="welcome-msg" id="welcomeMsg"></div>
+    <button class="btn primary" id="welcomeBtn" style="width:100%">Jai Swaminarayan 🎉</button>
   </div>
 </div>
 
@@ -89,7 +100,7 @@
 
 <div id="toast" class="toast" hidden></div>
 
-<script src="data.js?v=110"></script>
-<script src="app.js?v=110"></script>
+<script src="data.js?v=121"></script>
+<script src="app.js?v=121"></script>
 </body>
 </html>
