@@ -19,7 +19,7 @@ A small, installable web app (PWA) that shows **today's, this week's and this mo
 
 ## Data
 
-The contact list comes from the **Adajan master sheet** (676 contacts with name, mobile, birth date, email, karyakarta and address). Contacts you add or hide are stored only on your device (localStorage).
+The contact list is built from the **monthly birthday sheets (01–12)** of the source Excel (~1,360 contacts: name, mobile, birth date, address, karyakarta), enriched with email / karyakarta-mobile / mandal from the master sheet where mobile numbers match. Edits, added contacts, priority and follow-up flags are stored only on the device (localStorage).
 
 ## Tech
 

@@ -7,7 +7,7 @@
     deleted: "br_deleted_v1",    // hidden base ids
     settings: "br_settings_v1",
   };
-  const VERSION = "1.2.0";
+  const VERSION = "1.3.0";
   const PASSCODE = "1708";
   const UNLOCK_KEY = "br_unlocked_v1";
   const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -27,6 +27,24 @@
       .map(p => Object.assign({}, p, edits[p.id] || {}, { _src: "base" }));
     const custom = load(LS.custom, []).map(p => Object.assign({}, p, { _src: "custom" }));
     return base.concat(custom).filter(p => p.bmonth && p.bday);
+  }
+
+  /* ---------- edit / flags ---------- */
+  function updatePerson(p, changes) {
+    if (p._src === "custom") {
+      const custom = load(LS.custom, []);
+      const i = custom.findIndex(x => x.id === p.id);
+      if (i >= 0) { Object.assign(custom[i], changes); save(LS.custom, custom); }
+    } else {
+      const edits = load(LS.edits, {});
+      edits[p.id] = Object.assign({}, edits[p.id] || {}, changes);
+      save(LS.edits, edits);
+    }
+    Object.assign(p, changes); // reflect immediately on the in-memory object
+  }
+  function removePerson(p) {
+    if (p._src === "custom") save(LS.custom, load(LS.custom, []).filter(x => x.id !== p.id));
+    else { const d = load(LS.deleted, []); if (!d.includes(p.id)) d.push(p.id); save(LS.deleted, d); }
   }
 
   /* ---------- date helpers ---------- */
@@ -139,6 +157,8 @@
     if (opts.showToday) meta.appendChild(el("span", "tag badge-today", "🎉 Today!"));
     meta.appendChild(el("span", "tag", "🎂 " + dOrd));
     if (age != null) meta.appendChild(el("span", "tag", (opts.showToday ? "turns " : "") + age + " yrs"));
+    if (p.priority === "high") meta.appendChild(el("span", "tag badge-prio", "⭐ Priority"));
+    if (p.followup) meta.appendChild(el("span", "tag badge-follow", "🔎 Follow-up"));
     if (p._src === "custom") meta.appendChild(el("span", "tag badge-custom", "added"));
     if (p.kkName) meta.appendChild(el("span", "tag", "KK: " + esc(p.kkName.split(/\s+/)[0])));
     info.appendChild(meta);
@@ -252,7 +272,11 @@
     kks.forEach(k => kkSel.appendChild(new Option(k, k)));
     const sortSel = el("select");
     ["Name (A–Z)","Upcoming birthday","Month/Day"].forEach((s,i)=>sortSel.appendChild(new Option(s, ["name","soon","date"][i])));
-    fr.appendChild(sortSel); fr.appendChild(kkSel);
+    const flagSel = el("select");
+    flagSel.appendChild(new Option("Everyone", ""));
+    flagSel.appendChild(new Option("⭐ Priority", "priority"));
+    flagSel.appendChild(new Option("🔎 Follow-up", "followup"));
+    fr.appendChild(flagSel); fr.appendChild(sortSel); fr.appendChild(kkSel);
     m.appendChild(fr);
 
     const holder = el("div"); m.appendChild(holder);
@@ -262,6 +286,8 @@
       let list = allPeople();
       if (q) list = list.filter(p => p.name.toLowerCase().includes(q) || (p.mobile||"").includes(q) || (p.kkName||"").toLowerCase().includes(q));
       if (kkSel.value) list = list.filter(p => p.kkName === kkSel.value);
+      if (flagSel.value === "priority") list = list.filter(p => p.priority === "high");
+      else if (flagSel.value === "followup") list = list.filter(p => p.followup);
       if (sortSel.value === "soon") list.sort((a,b)=>daysUntil(a)-daysUntil(b));
       else if (sortSel.value === "date") list.sort((a,b)=>a.bmonth-b.bmonth || a.bday-b.bday);
       else list.sort((a,b)=>a.name.localeCompare(b.name));
@@ -270,7 +296,7 @@
       list.slice(0, 300).forEach(p => holder.appendChild(personCard(p, { countdown: daysUntil(p), showToday: isToday(p) })));
       if (list.length > 300) holder.appendChild(el("p","muted small",`Showing first 300 of ${list.length}. Refine your search.`));
     };
-    inp.oninput = debounce(draw, 150); kkSel.onchange = draw; sortSel.onchange = draw;
+    inp.oninput = debounce(draw, 150); kkSel.onchange = draw; sortSel.onchange = draw; flagSel.onchange = draw;
     draw();
   }
 
@@ -286,7 +312,12 @@
       </div>
       <label class="field"><span>Birth year (optional)</span><input id="aYear" inputmode="numeric" placeholder="e.g. 1980"></label>
       <label class="field"><span>Email (optional)</span><input id="aEmail" type="email" placeholder="name@example.com"></label>
-      <label class="field"><span>Karyakarta / note (optional)</span><input id="aNote" placeholder="e.g. Adajan mandal"></label>
+      <label class="field"><span>Karyakarta name (optional)</span><input id="aNote" placeholder="e.g. Tejas Patel"></label>
+      <label class="field"><span>Karyakarta mobile (optional)</span><input id="aKKm" inputmode="numeric" placeholder="for follow-up messages"></label>
+      <div class="form-grid">
+        <label class="field"><span>Priority</span><select id="aPrio"><option value="">Normal</option><option value="high">⭐ High priority</option></select></label>
+        <label class="field switch-field" style="align-self:end;margin-top:4px"><span>🔎 Good devotee / follow-up</span><input type="checkbox" id="aFollow"></label>
+      </div>
       <button class="btn primary" id="aSave" style="width:100%">Save birthday</button>`;
     m.appendChild(f);
     const mo = f.querySelector("#aMonth"), da = f.querySelector("#aDay");
@@ -303,6 +334,9 @@
         byear: +f.querySelector("#aYear").value || null,
         email: f.querySelector("#aEmail").value.trim(),
         kkName: f.querySelector("#aNote").value.trim(),
+        kkMobile: f.querySelector("#aKKm").value.replace(/\D/g,""),
+        priority: f.querySelector("#aPrio").value,
+        followup: f.querySelector("#aFollow").checked,
         mandal: "", remark: "", address: ""
       };
       const custom = load(LS.custom, []); custom.push(rec); save(LS.custom, custom);
@@ -400,9 +434,26 @@
       modal.appendChild(r);
     });
     modal.appendChild(actionButtons(p));
-    // personal wish quick copy
+
+    // quick flag toggles
+    const flags = el("div", "flag-toggles");
+    const prioBtn = el("button", "flag-btn" + (p.priority === "high" ? " on" : ""), (p.priority === "high" ? "⭐ Priority ✓" : "☆ Mark priority"));
+    prioBtn.onclick = () => { updatePerson(p, { priority: p.priority === "high" ? "" : "high" }); openPerson(p); render(); };
+    const followBtn = el("button", "flag-btn" + (p.followup ? " on" : ""), (p.followup ? "🔎 Follow-up ✓" : "👍 Good devotee / follow-up"));
+    followBtn.onclick = () => { updatePerson(p, { followup: !p.followup }); openPerson(p); render(); };
+    flags.appendChild(prioBtn); flags.appendChild(followBtn);
+    modal.appendChild(flags);
+
+    // ask karyakarta to follow up
+    const fu = el("div", "msg-actions");
+    const askBtn = el("button", "btn ghost", "📲 Ask karyakarta to follow up");
+    askBtn.onclick = () => askKaryakarta(p);
+    fu.appendChild(askBtn);
+    modal.appendChild(fu);
+
+    // personal wish + copy number
     const extra = el("div","msg-actions");
-    const pw = el("button","btn ghost","📋 Copy personal wish");
+    const pw = el("button","btn ghost","📋 Copy wish");
     pw.onclick = () => copyText(personalWish(p));
     extra.appendChild(pw);
     if (p.mobile) {
@@ -411,21 +462,100 @@
       extra.appendChild(copyNum);
     }
     modal.appendChild(extra);
-    // delete for custom / edited
-    const del = el("div","msg-actions");
-    const delBtn = el("button","btn danger ghost", p._src === "custom" ? "🗑 Delete contact" : "🙈 Hide from list");
+
+    // edit + delete
+    const ed = el("div","msg-actions");
+    const editBtn = el("button","btn primary","✏️ Edit details");
+    editBtn.onclick = () => openEditForm(p);
+    ed.appendChild(editBtn);
+    const delBtn = el("button","btn danger ghost", p._src === "custom" ? "🗑 Delete" : "🙈 Hide");
     delBtn.onclick = () => {
-      if (!confirm("Remove " + p.name + " from the app?")) return;
-      if (p._src === "custom") { save(LS.custom, load(LS.custom,[]).filter(x=>x.id!==p.id)); }
-      else { const dd = load(LS.deleted,[]); dd.push(p.id); save(LS.deleted, dd); }
+      if (!confirm("Remove " + p.name + " from the app?" + (p._src !== "custom" ? "\n(This hides the contact; you can restore from Settings.)" : ""))) return;
+      removePerson(p);
       closeModal(); toast("Removed"); render();
     };
-    del.appendChild(delBtn);
-    modal.appendChild(del);
+    ed.appendChild(delBtn);
+    modal.appendChild(ed);
     modal.querySelector("#closeModal").onclick = closeModal;
     $("#modalBackdrop").hidden = false;
   }
   function closeModal() { $("#modalBackdrop").hidden = true; }
+
+  /* ---------- edit form ---------- */
+  function openEditForm(p) {
+    const modal = $("#personModal");
+    modal.innerHTML = `
+      <div class="modal-head">
+        <div class="avatar">${initials(p.name)}</div>
+        <div style="flex:1"><h2>Edit details</h2><div class="muted small">${esc(p.name)}</div></div>
+        <button class="icon-btn" id="closeModal" style="background:var(--line);color:var(--text)">✕</button>
+      </div>
+      <label class="field"><span>Full name *</span><input id="eName"></label>
+      <label class="field"><span>Mobile number</span><input id="eMobile" inputmode="numeric"></label>
+      <div class="form-grid">
+        <label class="field"><span>Birth month</span><select id="eMonth"></select></label>
+        <label class="field"><span>Birth day</span><select id="eDay"></select></label>
+      </div>
+      <label class="field"><span>Birth year (optional)</span><input id="eYear" inputmode="numeric"></label>
+      <label class="field"><span>Email (optional)</span><input id="eEmail" type="email"></label>
+      <label class="field"><span>Karyakarta name</span><input id="eKK"></label>
+      <label class="field"><span>Karyakarta mobile</span><input id="eKKm" inputmode="numeric"></label>
+      <label class="field"><span>Address / note</span><textarea id="eAddr" rows="2"></textarea></label>
+      <div class="form-grid">
+        <label class="field"><span>Priority</span><select id="ePrio"><option value="">Normal</option><option value="high">⭐ High priority</option></select></label>
+        <label class="field switch-field" style="align-self:end;margin-top:4px"><span>🔎 Good devotee / follow-up</span><input type="checkbox" id="eFollow"></label>
+      </div>
+      <div class="msg-actions">
+        <button class="btn primary" id="eSave">💾 Save changes</button>
+        <button class="btn ghost" id="eCancel">Cancel</button>
+      </div>`;
+    const mo = modal.querySelector("#eMonth"), da = modal.querySelector("#eDay");
+    MONTHS.forEach((mn,i)=>mo.appendChild(new Option(mn, i+1)));
+    for (let i=1;i<=31;i++) da.appendChild(new Option(i, i));
+    modal.querySelector("#eName").value = p.name || "";
+    modal.querySelector("#eMobile").value = p.mobile || "";
+    mo.value = p.bmonth || 1; da.value = p.bday || 1;
+    modal.querySelector("#eYear").value = p.byear || "";
+    modal.querySelector("#eEmail").value = p.email || "";
+    modal.querySelector("#eKK").value = p.kkName || "";
+    modal.querySelector("#eKKm").value = p.kkMobile || "";
+    modal.querySelector("#eAddr").value = p.address || "";
+    modal.querySelector("#ePrio").value = p.priority === "high" ? "high" : "";
+    modal.querySelector("#eFollow").checked = !!p.followup;
+    modal.querySelector("#closeModal").onclick = closeModal;
+    modal.querySelector("#eCancel").onclick = () => openPerson(p);
+    modal.querySelector("#eSave").onclick = () => {
+      const name = modal.querySelector("#eName").value.trim();
+      if (!name) { toast("Name is required"); return; }
+      updatePerson(p, {
+        name,
+        mobile: modal.querySelector("#eMobile").value.replace(/\D/g,""),
+        bmonth: +mo.value, bday: +da.value,
+        byear: +modal.querySelector("#eYear").value || null,
+        email: modal.querySelector("#eEmail").value.trim(),
+        kkName: modal.querySelector("#eKK").value.trim(),
+        kkMobile: modal.querySelector("#eKKm").value.replace(/\D/g,""),
+        address: modal.querySelector("#eAddr").value.trim(),
+        priority: modal.querySelector("#ePrio").value,
+        followup: modal.querySelector("#eFollow").checked
+      });
+      toast("Saved ✔"); render(); openPerson(p);
+    };
+    $("#modalBackdrop").hidden = false;
+  }
+
+  /* ---------- ask karyakarta to follow up ---------- */
+  function askKaryakarta(p) {
+    const preset = p.kkMobile || "";
+    let num = window.prompt("Karyakarta's mobile number to send the follow-up request on WhatsApp:", preset);
+    if (num === null) return;
+    num = num.replace(/\D/g, "");
+    if (num.length < 10) { toast("Enter a valid mobile number"); return; }
+    if (p.kkMobile !== num) updatePerson(p, { kkMobile: num }); // remember for next time
+    const bday = p.bday ? `\nBirthday: ${p.bday} ${MONTHS[p.bmonth-1]}` : "";
+    const msg = `Jai Swaminarayan 🙏\n\nKindly do follow-up with P. B. ${p.name}${p.mobile ? " (" + p.mobile + ")" : ""}.${bday}${p.address ? "\nAddress: " + p.address : ""}\n\nThank you 🙏`;
+    window.open(`https://wa.me/${waNumber(num)}?text=${encodeURIComponent(msg)}`, "_blank");
+  }
 
   /* ---------- settings ---------- */
   function openSettings() {
@@ -506,7 +636,11 @@
     };
     btn.onclick = tryUnlock;
     inp.addEventListener("keydown", e => { if (e.key === "Enter") tryUnlock(); });
-    inp.addEventListener("input", () => { err.hidden = true; });
+    inp.addEventListener("input", () => {
+      err.hidden = true;
+      // Auto-unlock as soon as the full correct passcode is entered (no button tap needed)
+      if (inp.value.trim() === PASSCODE) tryUnlock();
+    });
   }
 
   /* ---------- init ---------- */
