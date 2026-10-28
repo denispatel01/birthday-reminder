@@ -1,11 +1,11 @@
 /* Service worker — offline cache (network-first, cache-busting) */
-const CACHE = "birthday-reminder-v11";
+const CACHE = "birthday-reminder-v12";
 const ASSETS = [
   "./",
   "index.html",
-  "styles.css?v=171",
-  "app.js?v=171",
-  "data.js?v=171",
+  "styles.css?v=180",
+  "app.js?v=180",
+  "data.js?v=180",
   "manifest.webmanifest",
   "icons/icon-192.png",
   "icons/icon-512.png",

@@ -7,7 +7,7 @@
     deleted: "br_deleted_v1",    // hidden base ids
     settings: "br_settings_v1",
   };
-  const VERSION = "1.7.1";
+  const VERSION = "1.8.0";
   const PASSCODE = "1708";
   const UNLOCK_KEY = "br_unlocked_v1";
   const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -636,6 +636,40 @@
       + `Jai Swaminarayan 🙏`;
   }
 
+  /* ---------- install help (manual steps) ---------- */
+  function showInstallHelp() {
+    const ua = navigator.userAgent;
+    const isIOS = /iphone|ipad|ipod/i.test(ua);
+    const inApp = /FBAN|FBAV|Instagram|Line|WhatsApp|WebView|; wv\)/i.test(ua);
+    let steps;
+    if (inApp) {
+      steps = `<li>This page is open <b>inside another app</b>. First tap the <b>•••</b> or <b>Share</b> menu (top of the screen) → <b>Open in Safari</b> (iPhone) or <b>Open in Chrome</b> (Android).</li>
+               <li>Then use the browser's menu to add it to your home screen (see below).</li>`;
+    } else if (isIOS) {
+      steps = `<li>Make sure you are in <b>Safari</b>.</li>
+               <li>Tap the <b>Share</b> button — the square with an ↑ arrow, at the bottom of Safari.</li>
+               <li>Scroll down and tap <b>Add to Home Screen</b>.</li>
+               <li>Tap <b>Add</b> (top-right). The app icon appears on your home screen. 🎉</li>`;
+    } else {
+      steps = `<li>Tap the browser menu — the <b>⋮</b> (three dots), usually top-right.</li>
+               <li>Tap <b>Install app</b> or <b>Add to Home screen</b>.</li>
+               <li>Tap <b>Install / Add</b>. The app icon appears on your home screen. 🎉</li>`;
+    }
+    const modal = $("#personModal");
+    modal.innerHTML = `
+      <div class="modal-head">
+        <div class="avatar">📲</div>
+        <div style="flex:1"><h2>Install this app</h2><div class="muted small">Keep it on your home screen like a normal app</div></div>
+        <button class="icon-btn" id="closeModal" style="background:var(--line);color:var(--text)">✕</button>
+      </div>
+      <ol class="install-steps">${steps}</ol>
+      <p class="muted small">Once added, open it from your home screen anytime — the passcode is asked only once.</p>
+      <div class="msg-actions"><button class="btn primary" id="okInstall">Got it 🙏</button></div>`;
+    modal.querySelector("#closeModal").onclick = closeModal;
+    modal.querySelector("#okInstall").onclick = closeModal;
+    $("#modalBackdrop").hidden = false;
+  }
+
   /* ---------- iOS install hint ---------- */
   function showIosInstallHint() {
     const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
@@ -752,10 +786,14 @@
 
     // install prompt
     let deferred;
+    const standalone = window.navigator.standalone === true ||
+      (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
+    // Show the Install button everywhere (desktop + mobile) unless already installed.
+    $("#installBtn").hidden = standalone;
     window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferred = e; $("#installBtn").hidden = false; });
     $("#installBtn").onclick = async () => {
-      if (!deferred) { toast("Use browser menu → Add to Home screen"); return; }
-      deferred.prompt(); await deferred.userChoice; deferred = null; $("#installBtn").hidden = true;
+      if (deferred) { deferred.prompt(); await deferred.userChoice; deferred = null; $("#installBtn").hidden = true; return; }
+      showInstallHelp();   // iOS / browsers without the install API → show steps
     };
     window.addEventListener("appinstalled", () => { $("#installBtn").hidden = true; toast("Installed ✔"); });
 
