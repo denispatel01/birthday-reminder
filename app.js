@@ -7,7 +7,7 @@
     deleted: "br_deleted_v1",    // hidden base ids
     settings: "br_settings_v1",
   };
-  const VERSION = "1.8.1";
+  const VERSION = "1.8.2";
   const PASSCODE = "1708";
   const UNLOCK_KEY = "br_unlocked_v1";
   const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
