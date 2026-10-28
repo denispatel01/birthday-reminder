@@ -7,7 +7,7 @@
     deleted: "br_deleted_v1",    // hidden base ids
     settings: "br_settings_v1",
   };
-  const VERSION = "1.7.0";
+  const VERSION = "1.7.1";
   const PASSCODE = "1708";
   const UNLOCK_KEY = "br_unlocked_v1";
   const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -593,15 +593,11 @@
 
   /* ---------- ask karyakarta to follow up ---------- */
   function askKaryakarta(p) {
-    const preset = p.kkMobile || "";
-    let num = window.prompt("Karyakarta's mobile number to send the follow-up request on WhatsApp:", preset);
-    if (num === null) return;
-    num = num.replace(/\D/g, "");
-    if (num.length < 10) { toast("Enter a valid mobile number"); return; }
-    if (p.kkMobile !== num) updatePerson(p, { kkMobile: num }); // remember for next time
+    // Open WhatsApp with the message ready; Rakesh Bhai picks the karyakarta from his contacts — no typing a number.
     const bday = p.bday ? `\nBirthday: ${p.bday} ${MONTHS[p.bmonth-1]}` : "";
     const msg = `Jai Swaminarayan 🙏\n\nKindly do follow-up with P. B. ${p.name}${p.mobile ? " (" + p.mobile + ")" : ""}.${bday}${p.address ? "\nAddress: " + p.address : ""}\n\nThank you 🙏`;
-    window.open(`https://wa.me/${waNumber(num)}?text=${encodeURIComponent(msg)}`, "_blank");
+    toast("Pick the karyakarta in WhatsApp");
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
   }
 
   /* ---------- settings ---------- */
