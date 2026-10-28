@@ -13,7 +13,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Birthdays">
-<link rel="stylesheet" href="styles.css?v=140">
+<link rel="stylesheet" href="styles.css?v=150">
 </head>
 <body>
 <!-- Passcode lock (shown until unlocked once on this device) -->
@@ -87,6 +87,11 @@
       <input type="checkbox" id="setNotify"></label>
     <button class="btn ghost" id="enableNotifBtn">Enable device notifications</button>
     <hr>
+    <p class="field" style="margin-bottom:8px"><span>Share this app</span></p>
+    <button class="btn wa" id="shareAppBtn" style="width:100%;margin-bottom:8px">📲 Send install message on WhatsApp</button>
+    <button class="btn ghost" id="copyInviteBtn" style="width:100%">📋 Copy install message</button>
+    <p class="muted small">Sends the link + passcode + simple install steps.</p>
+    <hr>
     <p class="muted small">Data source: Adajan master list (676 contacts). Your added contacts and edits are saved on this device only.</p>
     <button class="btn danger ghost" id="resetCustom">Clear my added/edited contacts</button>
     <p class="muted small" id="versionLine"></p>
@@ -100,7 +105,7 @@
 
 <div id="toast" class="toast" hidden></div>
 
-<script src="data.js?v=140"></script>
-<script src="app.js?v=140"></script>
+<script src="data.js?v=150"></script>
+<script src="app.js?v=150"></script>
 </body>
 </html>

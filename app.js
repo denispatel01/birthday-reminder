@@ -7,7 +7,7 @@
     deleted: "br_deleted_v1",    // hidden base ids
     settings: "br_settings_v1",
   };
-  const VERSION = "1.4.0";
+  const VERSION = "1.5.0";
   const PASSCODE = "1708";
   const UNLOCK_KEY = "br_unlocked_v1";
   const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -575,6 +575,24 @@
     render();
   }
 
+  /* ---------- share / invite ---------- */
+  function installMessage() {
+    const url = location.origin + location.pathname;
+    const leader = settings.leader || "Rakesh Bhai";
+    return `Jai Swaminarayan ${leader} 🙏\n\n`
+      + `I have made a *Birthday Reminder* app for you 🎂\n`
+      + `It shows today's, this week's and this month's birthdays, and lets you wish every devotee by WhatsApp, call, SMS or email in one tap — plus a ready birthday message to copy.\n\n`
+      + `🔗 Open: ${url}\n`
+      + `🔑 Passcode: ${PASSCODE} (asked only once)\n\n`
+      + `📲 To keep it like an app on your iPhone:\n`
+      + `1. Open the link in *Safari*\n`
+      + `2. Tap the Share button (the box with ↑)\n`
+      + `3. Tap *Add to Home Screen*\n`
+      + `4. Open it from your home screen anytime\n\n`
+      + `(On Android: open the link in Chrome → menu ⋮ → *Add to Home screen*.)\n\n`
+      + `Jai Swaminarayan 🙏`;
+  }
+
   /* ---------- notifications ---------- */
   function maybeNotify() {
     if (!settings.notify) return;
@@ -660,6 +678,10 @@
       localStorage.removeItem(LS.custom); localStorage.removeItem(LS.deleted); localStorage.removeItem(LS.edits);
       toast("Cleared"); render();
     };
+    $("#shareAppBtn").onclick = () => {
+      window.open(`https://wa.me/?text=${encodeURIComponent(installMessage())}`, "_blank");
+    };
+    $("#copyInviteBtn").onclick = () => copyText(installMessage());
     $("#enableNotifBtn").onclick = () => {
       if (!("Notification" in window)) { toast("Not supported on this device"); return; }
       Notification.requestPermission().then(p => { toast(p === "granted" ? "Notifications on ✔" : "Not allowed"); if (p==="granted") maybeNotify(); });
