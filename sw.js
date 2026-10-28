@@ -1,11 +1,11 @@
-/* Service worker — offline cache */
-const CACHE = "birthday-reminder-v2";
+/* Service worker — offline cache (network-first, cache-busting) */
+const CACHE = "birthday-reminder-v3";
 const ASSETS = [
   "./",
   "index.html",
-  "styles.css",
-  "app.js",
-  "data.js",
+  "styles.css?v=110",
+  "app.js?v=110",
+  "data.js?v=110",
   "manifest.webmanifest",
   "icons/icon-192.png",
   "icons/icon-512.png",
@@ -27,11 +27,12 @@ self.addEventListener("activate", e => {
 self.addEventListener("fetch", e => {
   const req = e.request;
   if (req.method !== "GET") return;
-  // network-first for the app shell data so updates are picked up, cache fallback offline
+  // Network-first, bypassing the HTTP cache so updates always reach the device.
+  // Falls back to the cached copy when offline.
   e.respondWith(
-    fetch(req).then(res => {
+    fetch(req, { cache: "no-store" }).then(res => {
       const copy = res.clone();
-      caches.open(CACHE).then(c => c.put(req, copy)).catch(()=>{});
+      caches.open(CACHE).then(c => c.put(req, copy)).catch(() => {});
       return res;
     }).catch(() => caches.match(req).then(r => r || caches.match("index.html")))
   );
