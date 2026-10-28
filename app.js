@@ -7,7 +7,7 @@
     deleted: "br_deleted_v1",    // hidden base ids
     settings: "br_settings_v1",
   };
-  const VERSION = "1.8.0";
+  const VERSION = "1.8.1";
   const PASSCODE = "1708";
   const UNLOCK_KEY = "br_unlocked_v1";
   const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -206,8 +206,8 @@
     const mth = ppl.filter(p => p.bmonth === today.getMonth() + 1).length;
     $("#stats").innerHTML =
       `<div class="stat"><b>${t}</b><span>TODAY</span></div>
-       <div class="stat"><b>${w}</b><span>THIS WEEK</span></div>
-       <div class="stat"><b>${mth}</b><span>THIS MONTH</span></div>
+       <div class="stat"><b>${w}</b><span>WEEK</span></div>
+       <div class="stat"><b>${mth}</b><span>MONTH</span></div>
        <div class="stat"><b>${ppl.length}</b><span>TOTAL</span></div>`;
   }
 
@@ -760,7 +760,7 @@
 
   /* ---------- init ---------- */
   function startApp() {
-    $("#todayDate").textContent = `${DOW[today.getDay()]}, ${today.getDate()} ${MONTHS[today.getMonth()]} ${today.getFullYear()}`;
+    $("#todayDate").textContent = `${DOW[today.getDay()].slice(0,3)}, ${today.getDate()} ${MONTHS[today.getMonth()].slice(0,3)} ${today.getFullYear()}`;
     $("#versionLine").textContent = "Version " + VERSION + " • " + (window.BIRTHDAY_DATA||[]).length + " contacts in master list";
 
     document.querySelectorAll(".tab").forEach(t => t.onclick = () => {
