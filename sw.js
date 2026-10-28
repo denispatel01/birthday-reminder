@@ -1,16 +1,16 @@
 /* Service worker — offline cache (network-first, cache-busting) */
-const CACHE = "birthday-reminder-v15";
+const CACHE = "birthday-reminder-v16";
 const ASSETS = [
   "./",
   "index.html",
-  "styles.css?v=183",
-  "app.js?v=183",
-  "data.js?v=183",
+  "styles.css?v=184",
+  "app.js?v=184",
+  "data.js?v=184",
   "manifest.webmanifest",
-  "icons/icon-192.png?v=183",
-  "icons/icon-512.png?v=183",
-  "icons/apple-touch-icon.png?v=183",
-  "icons/favicon-32.png?v=183"
+  "icons/icon-192.png?v=184",
+  "icons/icon-512.png?v=184",
+  "icons/apple-touch-icon.png?v=184",
+  "icons/favicon-32.png?v=184"
 ];
 
 self.addEventListener("install", e => {
