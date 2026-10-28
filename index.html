@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#7c3aed">
+<title>Birthday Reminder</title>
+<meta name="description" content="Daily birthday reminders with one-tap WhatsApp, call, SMS and email — for Rakesh Kaka's satsang mandal.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Birthdays">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="app-header">
+  <div class="header-inner">
+    <div class="brand">
+      <span class="brand-icon">🎂</span>
+      <div>
+        <h1>Birthday Reminder</h1>
+        <p id="todayDate" class="subtitle"></p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button id="installBtn" class="icon-btn" hidden title="Install app">⬇️ Install</button>
+      <button id="settingsBtn" class="icon-btn" title="Settings">⚙️</button>
+    </div>
+  </div>
+  <div class="stats" id="stats"></div>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button class="tab active" data-view="today">Today</button>
+  <button class="tab" data-view="week">Week</button>
+  <button class="tab" data-view="month">Month</button>
+  <button class="tab" data-view="all">All</button>
+  <button class="tab" data-view="add">＋ Add</button>
+</nav>
+
+<main id="main"></main>
+
+<!-- Settings drawer -->
+<div class="drawer-backdrop" id="drawerBackdrop" hidden></div>
+<aside class="drawer" id="settingsDrawer" hidden>
+  <div class="drawer-head"><h2>Settings</h2><button class="icon-btn" id="closeSettings">✕</button></div>
+  <div class="drawer-body">
+    <label class="field"><span>Leader name (greeting)</span>
+      <input type="text" id="setLeader" placeholder="Rakesh Kaka"></label>
+    <label class="field"><span>Country code (for WhatsApp)</span>
+      <input type="text" id="setCC" placeholder="91"></label>
+    <label class="field"><span>Default message style</span>
+      <select id="setTemplate">
+        <option value="rakesh">Rakesh Kaka style (English + Jay Swaminarayan)</option>
+        <option value="gujarati">Gujarati</option>
+        <option value="english">Simple English</option>
+        <option value="list">Short list only</option>
+      </select></label>
+    <label class="field switch-field"><span>Birthday notification on open</span>
+      <input type="checkbox" id="setNotify"></label>
+    <button class="btn ghost" id="enableNotifBtn">Enable device notifications</button>
+    <hr>
+    <p class="muted small">Data source: Adajan master list (676 contacts). Your added contacts and edits are saved on this device only.</p>
+    <button class="btn danger ghost" id="resetCustom">Clear my added/edited contacts</button>
+    <p class="muted small" id="versionLine"></p>
+  </div>
+</aside>
+
+<!-- Person modal -->
+<div class="modal-backdrop" id="modalBackdrop" hidden>
+  <div class="modal" id="personModal"></div>
+</div>
+
+<div id="toast" class="toast" hidden></div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
