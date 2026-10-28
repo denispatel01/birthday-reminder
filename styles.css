@@ -57,6 +57,12 @@ main{padding:4px 12px 12px;max-width:760px;margin:0 auto}
 .badge-custom{background:var(--amber);color:#111;border:none}
 .badge-prio{background:#f59e0b;color:#111;border:none}
 .badge-follow{background:#10b981;color:#fff;border:none}
+.badge-remark{background:#6366f1;color:#fff;border:none}
+
+.remark-box{background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.35);border-radius:12px;
+  padding:10px 12px;margin:12px 0 2px;font-size:14px;line-height:1.5}
+.remark-box .remark-label{display:block;font-size:11px;font-weight:700;letter-spacing:.4px;
+  color:#6366f1;text-transform:uppercase;margin-bottom:3px}
 
 .flag-toggles{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
 .flag-btn{flex:1;min-width:140px;border:1.5px solid var(--line);background:var(--card);color:var(--text);

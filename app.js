@@ -7,7 +7,7 @@
     deleted: "br_deleted_v1",    // hidden base ids
     settings: "br_settings_v1",
   };
-  const VERSION = "1.5.0";
+  const VERSION = "1.6.0";
   const PASSCODE = "1708";
   const UNLOCK_KEY = "br_unlocked_v1";
   const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -159,6 +159,7 @@
     if (age != null) meta.appendChild(el("span", "tag", (opts.showToday ? "turns " : "") + age + " yrs"));
     if (p.priority === "high") meta.appendChild(el("span", "tag badge-prio", "⭐ Priority"));
     if (p.followup) meta.appendChild(el("span", "tag badge-follow", "🔎 Follow-up"));
+    if (p.remark) meta.appendChild(el("span", "tag badge-remark", "📝 Note"));
     if (p._src === "custom") meta.appendChild(el("span", "tag badge-custom", "added"));
     if (p.kkName) meta.appendChild(el("span", "tag", "KK: " + esc(p.kkName.split(/\s+/)[0])));
     info.appendChild(meta);
@@ -314,6 +315,7 @@
       <label class="field"><span>Email (optional)</span><input id="aEmail" type="email" placeholder="name@example.com"></label>
       <label class="field"><span>Karyakarta name (optional)</span><input id="aNote" placeholder="e.g. Tejas Patel"></label>
       <label class="field"><span>Karyakarta mobile (optional)</span><input id="aKKm" inputmode="numeric" placeholder="for follow-up messages"></label>
+      <label class="field"><span>📝 Remark (optional)</span><input id="aRemark" placeholder="your note about this devotee"></label>
       <div class="form-grid">
         <label class="field"><span>Priority</span><select id="aPrio"><option value="">Normal</option><option value="high">⭐ High priority</option></select></label>
         <label class="field switch-field" style="align-self:end;margin-top:4px"><span>🔎 Good devotee / follow-up</span><input type="checkbox" id="aFollow"></label>
@@ -337,7 +339,8 @@
         kkMobile: f.querySelector("#aKKm").value.replace(/\D/g,""),
         priority: f.querySelector("#aPrio").value,
         followup: f.querySelector("#aFollow").checked,
-        mandal: "", remark: "", address: ""
+        remark: f.querySelector("#aRemark").value.trim(),
+        mandal: "", address: ""
       };
       const custom = load(LS.custom, []); custom.push(rec); save(LS.custom, custom);
       toast("Birthday added ✔");
@@ -417,8 +420,8 @@
       p.email ? ["Email", p.email] : null,
       p.kkName ? ["Karyakarta", p.kkName + (p.kkMobile ? " ("+p.kkMobile+")" : "")] : null,
       p.mandal ? ["Mandal", p.mandal] : null,
+      p.category ? ["Category", p.category] : null,
       p.gender ? ["Gender", p.gender] : null,
-      p.remark ? ["Remark", p.remark] : null,
       p.address ? ["Address", p.address] : null,
     ].filter(Boolean);
     modal.innerHTML = `
@@ -433,6 +436,11 @@
       r.innerHTML = `<span class="k">${esc(k)}</span><span class="v">${esc(v)}</span>`;
       modal.appendChild(r);
     });
+    if (p.remark) {
+      const note = el("div", "remark-box");
+      note.innerHTML = `<span class="remark-label">📝 Remark</span>${esc(p.remark)}`;
+      modal.appendChild(note);
+    }
     modal.appendChild(actionButtons(p));
 
     // quick flag toggles
@@ -500,7 +508,8 @@
       <label class="field"><span>Email (optional)</span><input id="eEmail" type="email"></label>
       <label class="field"><span>Karyakarta name</span><input id="eKK"></label>
       <label class="field"><span>Karyakarta mobile</span><input id="eKKm" inputmode="numeric"></label>
-      <label class="field"><span>Address / note</span><textarea id="eAddr" rows="2"></textarea></label>
+      <label class="field"><span>Address</span><textarea id="eAddr" rows="2"></textarea></label>
+      <label class="field"><span>📝 Remark (your note)</span><textarea id="eRemark" rows="2" placeholder="e.g. Interested, must visit / Wrong no / Shifted to..."></textarea></label>
       <div class="form-grid">
         <label class="field"><span>Priority</span><select id="ePrio"><option value="">Normal</option><option value="high">⭐ High priority</option></select></label>
         <label class="field switch-field" style="align-self:end;margin-top:4px"><span>🔎 Good devotee / follow-up</span><input type="checkbox" id="eFollow"></label>
@@ -520,6 +529,7 @@
     modal.querySelector("#eKK").value = p.kkName || "";
     modal.querySelector("#eKKm").value = p.kkMobile || "";
     modal.querySelector("#eAddr").value = p.address || "";
+    modal.querySelector("#eRemark").value = p.remark || "";
     modal.querySelector("#ePrio").value = p.priority === "high" ? "high" : "";
     modal.querySelector("#eFollow").checked = !!p.followup;
     modal.querySelector("#closeModal").onclick = closeModal;
@@ -536,6 +546,7 @@
         kkName: modal.querySelector("#eKK").value.trim(),
         kkMobile: modal.querySelector("#eKKm").value.replace(/\D/g,""),
         address: modal.querySelector("#eAddr").value.trim(),
+        remark: modal.querySelector("#eRemark").value.trim(),
         priority: modal.querySelector("#ePrio").value,
         followup: modal.querySelector("#eFollow").checked
       });
