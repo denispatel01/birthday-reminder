@@ -1,11 +1,9 @@
 :root{
-  --purple:#7c3aed; --pink:#ec4899; --bg:#f5f3ff; --card:#ffffff; --text:#1f2937;
-  --muted:#6b7280; --line:#e5e7eb; --green:#22c55e; --blue:#3b82f6; --amber:#f59e0b;
-  --radius:16px; --shadow:0 2px 10px rgba(17,24,39,.08);
+  color-scheme: light;               /* always light — never follow the phone's dark mode */
+  --purple:#7c3aed; --pink:#ec4899; --bg:#f7f8fc; --card:#ffffff; --text:#242731;
+  --muted:#6b7280; --line:#eceef3; --green:#22c55e; --blue:#3b82f6; --amber:#f59e0b;
+  --radius:16px; --shadow:0 1px 6px rgba(17,24,39,.06);
   --safe-top:env(safe-area-inset-top,0px); --safe-bottom:env(safe-area-inset-bottom,0px);
-}
-@media (prefers-color-scheme: dark){
-  :root{--bg:#14121c;--card:#1f1b2e;--text:#f3f4f6;--muted:#9ca3af;--line:#352f4a;--shadow:0 2px 12px rgba(0,0,0,.4);}
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 [hidden]{display:none !important}
@@ -52,12 +50,15 @@ main{padding:4px 12px 12px;max-width:760px;margin:0 auto}
 .p-info{flex:1;min-width:0}
 .p-name{font-weight:700;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .p-meta{font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
-.p-meta .tag{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
-.badge-today{background:var(--pink);color:#fff;border:none}
-.badge-custom{background:var(--amber);color:#111;border:none}
-.badge-prio{background:#f59e0b;color:#111;border:none}
-.badge-follow{background:#10b981;color:#fff;border:none}
-.badge-remark{background:#6366f1;color:#fff;border:none}
+.p-meta .tag{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:2px 7px;font:inherit;font-size:12.5px;color:var(--muted)}
+.p-meta .tag-date{background:rgba(124,58,237,.08);border-color:rgba(124,58,237,.3);color:var(--purple);
+  font-weight:600;cursor:pointer}
+.p-meta .tag-date:active{transform:scale(.96)}
+.p-meta .tag.badge-today{background:var(--pink);color:#fff;border:none;font-weight:700}
+.p-meta .tag.badge-custom{background:var(--amber);color:#111;border:none}
+.p-meta .tag.badge-prio{background:#f59e0b;color:#111;border:none}
+.p-meta .tag.badge-follow{background:#10b981;color:#fff;border:none}
+.p-meta .tag.badge-remark{background:#6366f1;color:#fff;border:none}
 
 .remark-box{background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.35);border-radius:12px;
   padding:10px 12px;margin:12px 0 2px;font-size:14px;line-height:1.5}
@@ -171,6 +172,12 @@ main{padding:4px 12px 12px;max-width:760px;margin:0 auto}
 .lock-card input{width:100%;margin:16px 0 10px;padding:14px;font-size:24px;text-align:center;letter-spacing:8px;
   border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--text)}
 .lock-error{color:var(--pink);font-size:13px;font-weight:600;margin:0 0 10px}
+
+.ios-tip{position:relative;background:#fff;border:1px solid var(--line);border-left:4px solid var(--purple);
+  box-shadow:var(--shadow);border-radius:12px;margin:10px 12px 0;padding:12px 36px 12px 12px;font-size:13px;line-height:1.5}
+.ios-tip b{color:var(--text)} .ios-tip span{display:block;color:var(--muted);margin-top:3px}
+.ios-tip-x{position:absolute;top:8px;right:8px;background:var(--bg);border:none;border-radius:8px;
+  width:26px;height:26px;color:var(--muted);font-size:13px}
 
 .install-tip{background:var(--card);border:1px dashed var(--purple);border-radius:12px;padding:12px;
   margin:6px 4px 12px;font-size:13px;color:var(--muted)}

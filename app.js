@@ -7,7 +7,7 @@
     deleted: "br_deleted_v1",    // hidden base ids
     settings: "br_settings_v1",
   };
-  const VERSION = "1.6.0";
+  const VERSION = "1.7.0";
   const PASSCODE = "1708";
   const UNLOCK_KEY = "br_unlocked_v1";
   const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -155,7 +155,10 @@
     const age = ageTurning(p);
     const dOrd = `${p.bday} ${MONTHS[p.bmonth-1].slice(0,3)}`;
     if (opts.showToday) meta.appendChild(el("span", "tag badge-today", "🎉 Today!"));
-    meta.appendChild(el("span", "tag", "🎂 " + dOrd));
+    const dateTag = el("button", "tag tag-date", "🎂 " + dOrd + " ✏️");
+    dateTag.title = "Tap to correct birthday";
+    dateTag.onclick = e => { e.stopPropagation(); openQuickDate(p); };
+    meta.appendChild(dateTag);
     if (age != null) meta.appendChild(el("span", "tag", (opts.showToday ? "turns " : "") + age + " yrs"));
     if (p.priority === "high") meta.appendChild(el("span", "tag badge-prio", "⭐ Priority"));
     if (p.followup) meta.appendChild(el("span", "tag badge-follow", "🔎 Follow-up"));
@@ -555,6 +558,39 @@
     $("#modalBackdrop").hidden = false;
   }
 
+  /* ---------- quick birthday correction (one tap from card) ---------- */
+  function openQuickDate(p) {
+    const modal = $("#personModal");
+    modal.innerHTML = `
+      <div class="modal-head">
+        <div class="avatar">${initials(p.name)}</div>
+        <div style="flex:1"><h2>Correct birthday</h2><div class="muted small">${esc(p.name)}</div></div>
+        <button class="icon-btn" id="closeModal" style="background:var(--line);color:var(--text)">✕</button>
+      </div>
+      <p class="muted small" style="margin:-4px 0 12px">Currently: <b>${p.bday ? p.bday + " " + MONTHS[p.bmonth-1] + (p.byear ? " " + p.byear : "") : "not set"}</b></p>
+      <div class="form-grid">
+        <label class="field"><span>Month</span><select id="qMonth"></select></label>
+        <label class="field"><span>Day</span><select id="qDay"></select></label>
+      </div>
+      <label class="field"><span>Year (optional)</span><input id="qYear" inputmode="numeric" placeholder="e.g. 1990"></label>
+      <div class="msg-actions">
+        <button class="btn primary" id="qSave">💾 Save birthday</button>
+        <button class="btn ghost" id="qCancel">Cancel</button>
+      </div>`;
+    const mo = modal.querySelector("#qMonth"), da = modal.querySelector("#qDay");
+    MONTHS.forEach((mn,i)=>mo.appendChild(new Option(mn, i+1)));
+    for (let i=1;i<=31;i++) da.appendChild(new Option(i, i));
+    mo.value = p.bmonth || 1; da.value = p.bday || 1;
+    modal.querySelector("#qYear").value = p.byear || "";
+    modal.querySelector("#closeModal").onclick = closeModal;
+    modal.querySelector("#qCancel").onclick = closeModal;
+    modal.querySelector("#qSave").onclick = () => {
+      updatePerson(p, { bmonth: +mo.value, bday: +da.value, byear: +modal.querySelector("#qYear").value || null });
+      toast("Birthday updated ✔"); closeModal(); render();
+    };
+    $("#modalBackdrop").hidden = false;
+  }
+
   /* ---------- ask karyakarta to follow up ---------- */
   function askKaryakarta(p) {
     const preset = p.kkMobile || "";
@@ -596,12 +632,32 @@
       + `🔗 Open: ${url}\n`
       + `🔑 Passcode: ${PASSCODE} (asked only once)\n\n`
       + `📲 To keep it like an app on your iPhone:\n`
-      + `1. Open the link in *Safari*\n`
-      + `2. Tap the Share button (the box with ↑)\n`
-      + `3. Tap *Add to Home Screen*\n`
-      + `4. Open it from your home screen anytime\n\n`
+      + `1. *Important:* open this link in *Safari* (if it opens inside WhatsApp, tap ••• at top-right → Open in Safari / Browser)\n`
+      + `2. In Safari, tap the *Share* button (square with ↑ at the bottom)\n`
+      + `3. Scroll down and tap *Add to Home Screen*\n`
+      + `4. Tap *Add* — now open it from your home screen anytime\n\n`
       + `(On Android: open the link in Chrome → menu ⋮ → *Add to Home screen*.)\n\n`
       + `Jai Swaminarayan 🙏`;
+  }
+
+  /* ---------- iOS install hint ---------- */
+  function showIosInstallHint() {
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const standalone = window.navigator.standalone === true ||
+      (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
+    if (!isIOS || standalone) return;
+    if (load("br_ios_hint_dismissed", false)) return;
+    // in-app browsers (WhatsApp/Instagram/etc.) can't Add to Home Screen — tell them to open in Safari
+    const inApp = /FBAN|FBAV|Instagram|Line|WhatsApp|WebView|; wv\)/i.test(navigator.userAgent);
+    const tip = el("div", "ios-tip");
+    tip.innerHTML =
+      `<button class="ios-tip-x" aria-label="Close">✕</button>
+       <b>📲 Add to your Home Screen</b>
+       ${inApp
+         ? `<span>This is open inside another app. First tap the <b>•••</b> (or Share) menu → <b>Open in Safari</b>, then follow the steps below.</span>`
+         : `<span>In <b>Safari</b>: tap the <b>Share</b> button (the square with ↑ at the bottom), scroll down, then tap <b>Add to Home Screen</b>.</span>`}`;
+    tip.querySelector(".ios-tip-x").onclick = () => { save("br_ios_hint_dismissed", true); tip.remove(); };
+    document.body.insertBefore(tip, $("#tabs"));
   }
 
   /* ---------- notifications ---------- */
@@ -709,6 +765,7 @@
 
     render();
     showWelcome();
+    showIosInstallHint();
     setTimeout(maybeNotify, 800);
 
     if ("serviceWorker" in navigator) {
