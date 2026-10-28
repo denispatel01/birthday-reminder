@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#7c3aed">
+<meta name="robots" content="noindex, nofollow">
 <title>Birthday Reminder</title>
 <meta name="description" content="Daily birthday reminders with one-tap WhatsApp, call, SMS and email — for Rakesh Kaka's satsang mandal.">
 <link rel="manifest" href="manifest.webmanifest">
@@ -15,6 +16,19 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+<!-- Passcode lock (shown until unlocked once on this device) -->
+<div id="lockScreen" class="lock" hidden>
+  <div class="lock-card">
+    <div class="lock-icon">🎂🔒</div>
+    <h2>Birthday Reminder</h2>
+    <p class="muted">Enter passcode to continue</p>
+    <input id="lockInput" inputmode="numeric" pattern="[0-9]*" maxlength="8" placeholder="••••" autocomplete="off">
+    <p id="lockError" class="lock-error" hidden>Wrong passcode. Try again.</p>
+    <button class="btn primary" id="lockBtn" style="width:100%">Unlock</button>
+    <p class="muted small" style="margin-top:14px">You'll only be asked once on this device.</p>
+  </div>
+</div>
+
 <header class="app-header">
   <div class="header-inner">
     <div class="brand">

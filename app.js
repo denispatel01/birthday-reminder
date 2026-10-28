@@ -7,7 +7,9 @@
     deleted: "br_deleted_v1",    // hidden base ids
     settings: "br_settings_v1",
   };
-  const VERSION = "1.0.0";
+  const VERSION = "1.1.0";
+  const PASSCODE = "1708";
+  const UNLOCK_KEY = "br_unlocked_v1";
   const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   const DOW = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 
@@ -459,8 +461,29 @@
     document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.view === currentView));
   }
 
+  /* ---------- passcode gate ---------- */
+  function gate() {
+    const unlocked = (() => { try { return localStorage.getItem(UNLOCK_KEY) === "1"; } catch { return false; } })();
+    if (unlocked) { startApp(); return; }
+    const lock = $("#lockScreen"), inp = $("#lockInput"), err = $("#lockError"), btn = $("#lockBtn");
+    lock.hidden = false;
+    setTimeout(() => inp.focus(), 100);
+    const tryUnlock = () => {
+      if (inp.value.trim() === PASSCODE) {
+        try { localStorage.setItem(UNLOCK_KEY, "1"); } catch {}
+        lock.hidden = true;
+        startApp();
+      } else {
+        err.hidden = false; inp.value = ""; inp.focus();
+      }
+    };
+    btn.onclick = tryUnlock;
+    inp.addEventListener("keydown", e => { if (e.key === "Enter") tryUnlock(); });
+    inp.addEventListener("input", () => { err.hidden = true; });
+  }
+
   /* ---------- init ---------- */
-  function init() {
+  function startApp() {
     $("#todayDate").textContent = `${DOW[today.getDay()]}, ${today.getDate()} ${MONTHS[today.getMonth()]} ${today.getFullYear()}`;
     $("#versionLine").textContent = "Version " + VERSION + " • " + (window.BIRTHDAY_DATA||[]).length + " contacts in master list";
 
@@ -497,5 +520,5 @@
       navigator.serviceWorker.register("sw.js").catch(()=>{});
     }
   }
-  document.addEventListener("DOMContentLoaded", init);
+  document.addEventListener("DOMContentLoaded", gate);
 })();

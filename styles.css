@@ -130,5 +130,16 @@ main{padding:4px 12px 12px;max-width:760px;margin:0 auto}
   box-shadow:0 4px 16px rgba(0,0,0,.3);animation:pop .2s ease}
 @keyframes pop{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
 
+/* passcode lock */
+.lock{position:fixed;inset:0;z-index:200;display:grid;place-items:center;padding:20px;
+  background:linear-gradient(135deg,var(--purple),var(--pink))}
+.lock-card{background:var(--card);border-radius:22px;box-shadow:var(--shadow);padding:30px 22px;
+  width:100%;max-width:340px;text-align:center}
+.lock-icon{font-size:40px;margin-bottom:8px}
+.lock-card h2{font-size:20px;margin-bottom:4px}
+.lock-card input{width:100%;margin:16px 0 10px;padding:14px;font-size:24px;text-align:center;letter-spacing:8px;
+  border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--text)}
+.lock-error{color:var(--pink);font-size:13px;font-weight:600;margin:0 0 10px}
+
 .install-tip{background:var(--card);border:1px dashed var(--purple);border-radius:12px;padding:12px;
   margin:6px 4px 12px;font-size:13px;color:var(--muted)}

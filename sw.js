@@ -1,5 +1,5 @@
 /* Service worker — offline cache */
-const CACHE = "birthday-reminder-v1";
+const CACHE = "birthday-reminder-v2";
 const ASSETS = [
   "./",
   "index.html",
