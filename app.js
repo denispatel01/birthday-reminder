@@ -7,7 +7,7 @@
     deleted: "br_deleted_v1",    // hidden base ids
     settings: "br_settings_v1",
   };
-  const VERSION = "1.3.0";
+  const VERSION = "1.4.0";
   const PASSCODE = "1708";
   const UNLOCK_KEY = "br_unlocked_v1";
   const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -16,7 +16,7 @@
   /* ---------- storage ---------- */
   const load = (k, def) => { try { return JSON.parse(localStorage.getItem(k)) ?? def; } catch { return def; } };
   const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
-  let settings = Object.assign({ leader: "Rakesh Kaka", cc: "91", template: "rakesh", notify: true }, load(LS.settings, {}));
+  let settings = Object.assign({ leader: "Rakesh Bhai", cc: "91", template: "rakesh", notify: true }, load(LS.settings, {}));
 
   /* ---------- data ---------- */
   function allPeople() {
@@ -566,7 +566,7 @@
     $("#settingsDrawer").hidden = false; $("#drawerBackdrop").hidden = false;
   }
   function closeSettings() {
-    settings.leader = $("#setLeader").value.trim() || "Rakesh Kaka";
+    settings.leader = $("#setLeader").value.trim() || "Rakesh Bhai";
     settings.cc = $("#setCC").value.replace(/\D/g,"") || "91";
     settings.template = $("#setTemplate").value;
     settings.notify = $("#setNotify").checked;
@@ -599,14 +599,14 @@
     const weekCount = ppl.filter(p => { const d = daysUntil(p); return d >= 0 && d <= 7; }).length;
     let countHtml;
     if (todayCount > 0) {
-      countHtml = `<div class="count">🎂 <b>${todayCount}</b> ${todayCount === 1 ? "bhakt has" : "bhakto have"} a birthday <b>today</b>.<br>Let's make ${todayCount === 1 ? "them" : "them all"} feel special! 🎉</div>`;
+      countHtml = `<div class="count">🎂 <b>${todayCount}</b> ${todayCount === 1 ? "devotee has" : "devotees have"} a birthday <b>today</b>.<br>Let's make ${todayCount === 1 ? "them" : "them all"} feel special! 🎉</div>`;
     } else if (weekCount > 0) {
       countHtml = `<div class="count">No birthdays today 🙂<br><b>${weekCount}</b> coming up in the next 7 days.</div>`;
     } else {
       countHtml = `<div class="count">No birthdays in the coming week.<br>Have a blessed day! 🙏</div>`;
     }
     $("#welcomeMsg").innerHTML =
-      `This app is made with love, just for you — to help you wish every bhakt a very happy birthday on their special day. 🎂${countHtml}`;
+      `This app is made with love, just for you — to help you wish every devotee a very happy birthday on their special day. 🎂${countHtml}`;
 
     w.hidden = false;
     $("#welcomeBtn").onclick = () => { w.hidden = true; };
